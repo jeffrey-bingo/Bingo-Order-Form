@@ -329,6 +329,8 @@
 
         let products = [];
         let currentCategory = 'All';
+        // This object will store the quantities, acting as our persistent "cart".
+        let orderQuantities = {};
 
         function parseData() {
             const lines = inventoryData.trim().split('\n');
@@ -340,134 +342,115 @@
                     const price = parseFloat(priceMatch[1]);
                     let content = line.substring(0, priceMatch.index).trim();
                     
-                    // This cleanup is better done after splitting
-                    // content = content.replace(/(CS)\d+/g, '$1');
-
                     let itemCode = '';
                     let name = '';
 
                     const firstSpaceIndex = content.indexOf(' ');
                     
-                    // Handle lines with a space after the item code
                     if (firstSpaceIndex > 0 && firstSpaceIndex < 15) {
                         itemCode = content.substring(0, firstSpaceIndex).trim();
                         name = content.substring(firstSpaceIndex + 1).trim();
-                    } 
-                    // Handle lines without a space
-                    else {
+                    } else {
                         const match = content.match(/^([0-9A-Z]+?)([A-Z]{2,}.*)$/);
                          if (match && match.length === 3) {
                             itemCode = match[1];
                             name = match[2];
                         } else {
-                            console.error("Could not parse line:", line);
                             return null;
                         }
                     }
 
                     if (!itemCode || !name) return null;
-
-                    // Clean up trailing junk from the name
                     name = name.replace(/(CS)\d+/g, '$1').trim();
-
                     return { itemCode, name, price };
 
                 } catch (e) {
-                    console.error("Error parsing line:", line, e);
                     return null;
                 }
-            }).filter(p => p); // filter out any null values
+            }).filter(p => p);
             return parsedProducts;
         }
 
 
         function renderTable(productsToRender) {
             const tableBody = document.getElementById('product-table-body');
-            // Keep track of entered quantities to persist them during re-renders (filtering)
-            const quantities = {};
-            document.querySelectorAll('.quantity-input').forEach(input => {
-                if (input.value && parseInt(input.value) > 0) {
-                   const itemCode = input.closest('.product-row').dataset.itemCode;
-                   quantities[itemCode] = input.value;
-                }
-            });
-
             tableBody.innerHTML = '';
             productsToRender.forEach(product => {
                 const row = document.createElement('tr');
                 row.className = "product-row";
                 row.dataset.itemCode = product.itemCode;
-                row.dataset.name = product.name;
-                row.dataset.price = product.price;
-
-                const savedQuantity = quantities[product.itemCode] || '';
+                
+                // Get the saved quantity from our persistent object
+                const savedQuantity = orderQuantities[product.itemCode] || '';
+                const lineTotal = (parseInt(savedQuantity) || 0) * product.price;
 
                 row.innerHTML = `
                     <td class="hidden px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.itemCode}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${product.name}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">$${product.price.toFixed(2)}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <input type="number" min="0" value="${savedQuantity}" class="w-24 p-2 bg-gray-50 border border-gray-300 rounded-md text-center focus:ring-1 focus:ring-blue-500 focus:border-blue-500 quantity-input" data-price="${product.price}">
+                        <input type="number" min="0" value="${savedQuantity}" class="w-24 p-2 bg-gray-50 border border-gray-300 rounded-md text-center focus:ring-1 focus:ring-blue-500 focus:border-blue-500 quantity-input">
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-right line-total">$${(savedQuantity * product.price).toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-right line-total">$${lineTotal.toFixed(2)}</td>
                 `;
                 tableBody.appendChild(row);
             });
             addEventListenersToInputs();
-            calculateTotals();
         }
 
         function calculateTotals() {
             let grandTotal = 0;
-            const allProductRows = document.querySelectorAll('#product-table-body .product-row');
-            allProductRows.forEach(row => {
-                 const input = row.querySelector('.quantity-input');
-                 const quantity = parseInt(input.value) || 0;
-                 const price = parseFloat(row.dataset.price);
-                 const lineTotal = quantity * price;
-
-                 if (quantity > 0) {
-                    grandTotal += lineTotal;
-                 }
-                 
-                 row.querySelector('.line-total').textContent = `$${lineTotal.toFixed(2)}`;
-            });
-
-            // Recalculate the grand total from the source of truth (all products), not just visible ones
-            let finalGrandTotal = 0;
-            const allInputs = document.querySelectorAll('.quantity-input');
-             products.forEach(product => {
-                const row = document.querySelector(`.product-row[data-item-code="${product.itemCode}"]`);
-                if (row) {
-                    const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
-                     if (quantity > 0) {
-                        finalGrandTotal += quantity * product.price;
+            // The grand total is now calculated from our persistent orderQuantities object,
+            // which contains the ENTIRE order, not just what's visible.
+            for (const itemCode in orderQuantities) {
+                const quantity = orderQuantities[itemCode];
+                if (quantity > 0) {
+                    const product = products.find(p => p.itemCode === itemCode);
+                    if (product) {
+                        grandTotal += quantity * product.price;
                     }
                 }
+            }
+            document.getElementById('total-price').textContent = `$${grandTotal.toFixed(2)}`;
+
+            // Update line totals only for visible rows
+            document.querySelectorAll('.product-row').forEach(row => {
+                const itemCode = row.dataset.itemCode;
+                const quantity = orderQuantities[itemCode] || 0;
+                const product = products.find(p => p.itemCode === itemCode);
+                if (product) {
+                    const lineTotal = quantity * product.price;
+                    row.querySelector('.line-total').textContent = `$${lineTotal.toFixed(2)}`;
+                }
             });
-
-
-            document.getElementById('total-price').textContent = `$${finalGrandTotal.toFixed(2)}`;
         }
 
         function addEventListenersToInputs() {
-            const quantityInputs = document.querySelectorAll('.quantity-input');
-            quantityInputs.forEach(input => {
-                input.addEventListener('input', calculateTotals);
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const itemCode = e.target.closest('.product-row').dataset.itemCode;
+                    const quantity = parseInt(e.target.value) || 0;
+                    
+                    // Update our persistent "cart" object
+                    if (quantity > 0) {
+                        orderQuantities[itemCode] = quantity;
+                    } else {
+                        delete orderQuantities[itemCode]; // Remove if quantity is 0 or empty
+                    }
+                    
+                    calculateTotals();
+                });
             });
         }
         
         function filterAndRender() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
             let filteredProducts = products;
 
-            // 1. Filter by Category
             if (currentCategory !== 'All') {
                 filteredProducts = filteredProducts.filter(p => p.itemCode.startsWith(currentCategory));
             }
 
-            // 2. Filter by Search Term
             if (searchTerm) {
                 filteredProducts = filteredProducts.filter(p => 
                     p.name.toLowerCase().includes(searchTerm) || 
@@ -505,33 +488,27 @@
             let hasProducts = false;
             let grandTotal = 0;
 
-            products.forEach(product => {
-                // Find the quantity from the actual input on the page, not just a querySelector of all rows
-                 const row = document.querySelector(`.product-row[data-item-code="${product.itemCode}"]`);
-                 let quantity = 0;
-                 if(row) {
-                     const input = row.querySelector('.quantity-input');
-                     if(input) {
-                        quantity = parseInt(input.value) || 0;
-                     }
-                 }
-
-                if (quantity > 0) {
+            // Build summary from the persistent orderQuantities object
+            for (const itemCode in orderQuantities) {
+                 const quantity = orderQuantities[itemCode];
+                 if (quantity > 0) {
                     hasProducts = true;
-                    const price = product.price;
-                    const lineTotal = quantity * price;
-                    grandTotal += lineTotal;
-                    summaryHtml += `
-                        <div class="py-2 flex justify-between">
-                            <div>
-                                <p class="font-semibold">${product.name} (${product.itemCode})</p>
-                                <p class="text-sm text-gray-600">${quantity} x $${price.toFixed(2)}</p>
+                    const product = products.find(p => p.itemCode === itemCode);
+                    if (product) {
+                        const lineTotal = quantity * product.price;
+                        grandTotal += lineTotal;
+                        summaryHtml += `
+                            <div class="py-2 flex justify-between">
+                                <div>
+                                    <p class="font-semibold">${product.name} (${product.itemCode})</p>
+                                    <p class="text-sm text-gray-600">${quantity} x $${product.price.toFixed(2)}</p>
+                                </div>
+                                <p class="font-semibold">$${lineTotal.toFixed(2)}</p>
                             </div>
-                            <p class="font-semibold">$${lineTotal.toFixed(2)}</p>
-                        </div>
-                    `;
-                }
-            });
+                        `;
+                    }
+                 }
+            }
             summaryHtml += '</div>';
 
             if (!hasProducts) {
@@ -541,7 +518,6 @@
 
             productSummary.innerHTML = summaryHtml;
             modalTotalPrice.textContent = `$${grandTotal.toFixed(2)}`;
-            document.getElementById('total-price').textContent = `$${grandTotal.toFixed(2)}`;
             modal.classList.remove('hidden');
         }
         
@@ -570,26 +546,21 @@
             body += "--- Ordered Products ---\n\n";
 
             let grandTotal = 0;
-             products.forEach(product => {
-                const row = document.querySelector(`.product-row[data-item-code="${product.itemCode}"]`);
-                 let quantity = 0;
-                 if(row) {
-                    const input = row.querySelector('.quantity-input');
-                    if(input) {
-                        quantity = parseInt(input.value) || 0;
+            // Build email body from the persistent orderQuantities object
+            for (const itemCode in orderQuantities) {
+                const quantity = orderQuantities[itemCode];
+                if(quantity > 0) {
+                    const product = products.find(p => p.itemCode === itemCode);
+                    if (product) {
+                        const lineTotal = quantity * product.price;
+                        grandTotal += lineTotal;
+                        body += `${product.name} (${itemCode})\n`;
+                        body += `   - Quantity: ${quantity}\n`;
+                        body += `   - Price per deal: $${product.price.toFixed(2)}\n`;
+                        body += `   - Subtotal: $${lineTotal.toFixed(2)}\n\n`;
                     }
-                 }
-                
-                if (quantity > 0) {
-                    const price = product.price;
-                    const lineTotal = quantity * price;
-                    grandTotal += lineTotal;
-                    body += `${product.name} (${product.itemCode})\n`;
-                    body += `   - Quantity: ${quantity}\n`;
-                    body += `   - Price per deal: $${price.toFixed(2)}\n`;
-                    body += `   - Subtotal: $${lineTotal.toFixed(2)}\n\n`;
                 }
-            });
+            }
 
             body += "---------------------------\n";
             body += `GRAND TOTAL: $${grandTotal.toFixed(2)}\n`;
