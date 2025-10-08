@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Order Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .table-container {
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        .sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .category-btn.active {
+            background-color: #2563EB; /* a blue-600 shade */
+            color: white;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-gray-900 mb-2">Customer Order Form</h1>
+            <p class="text-gray-600 mb-8">Please fill out your details and select the products you wish to order.</p>
+
+            <!-- Customer Information Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div>
+                    <label for="customerName" class="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                    <input type="text" id="customerName" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                </div>
+                <div>
+                    <label for="companyName" class="block text-sm font-medium text-gray-700 mb-1">Company Name (Optional)</label>
+                    <input type="text" id="companyName" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input type="email" id="email" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                </div>
+                <div>
+                    <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                    <input type="tel" id="phone" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                </div>
+                <div class="md:col-span-2">
+                    <label for="shippingAddress" class="block text-sm font-medium text-gray-700 mb-1">Shipping Address</label>
+                    <textarea id="shippingAddress" rows="3" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                </div>
+                 <div class="md:col-span-2">
+                    <label for="specialInstructions" class="block text-sm font-medium text-gray-700 mb-1">Special Instructions</label>
+                    <textarea id="specialInstructions" rows="3" class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"></textarea>
+                </div>
+            </div>
+
+            <!-- Product Table Section -->
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Products</h2>
+
+            <!-- Category Filter Section -->
+            <div class="mb-4">
+                <h3 class="text-lg font-medium text-gray-800 mb-3">Filter by Category:</h3>
+                <div id="category-filters" class="flex flex-wrap gap-2">
+                    <button class="category-btn active bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-4 rounded-lg text-sm font-semibold transition" data-category="All">All</button>
+                    <button class="category-btn bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-4 rounded-lg text-sm font-semibold transition" data-category="140">ALL PLAY TICKETS</button>
+                    <button class="category-btn bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-4 rounded-lg text-sm font-semibold transition" data-category="145">.50 CENT GAMES</button>
+                    <button class="category-btn bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-4 rounded-lg text-sm font-semibold transition" data-category="150">FLASH GAMES</button>
+                    <button class="category-btn bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-4 rounded-lg text-sm font-semibold transition" data-category="155">FLASH GAMES $1199+</button>
+                    <button class="category-btn bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-4 rounded-lg text-sm font-semibold transition" data-category="170">MINI STRIPS (3V)</button>
+                    <button class="category-btn bg-gray-200 text-gray-700 hover:bg-gray-300 py-2 px-4 rounded-lg text-sm font-semibold transition" data-category="180">STRIP GAMES (5V)</button>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <input type="text" id="searchInput" placeholder="Search for a product within the selected category..." class="w-full p-3 bg-gray-50 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+            </div>
+            
+            <div class="table-container border border-gray-200 rounded-lg">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50 sticky-header">
+                        <tr>
+                            <th scope="col" class="hidden px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Code</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product Name</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Price per deal</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">Quantity</th>
+                            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Line Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="product-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Product rows will be inserted here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Order Summary and Submission -->
+            <div class="mt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="text-center md:text-left">
+                    <h3 class="text-2xl font-bold text-gray-900">Total: <span id="total-price">$0.00</span></h3>
+                </div>
+                <button id="submit-order" class="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-lg shadow-md hover:shadow-lg transition-all duration-300 ease-in-out transform hover:-translate-y-0.5">
+                    Submit Order
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Success Message -->
+    <div id="success-message" class="fixed top-5 right-5 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg shadow-lg z-50 hidden" role="alert">
+        <strong class="font-bold">Success!</strong>
+        <span class="block sm:inline">Your email client is opening to send the order.</span>
+    </div>
+
+    <!-- Modal for Order Summary -->
+    <div id="order-summary-modal" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-2xl shadow-xl p-8 m-4 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">Order Summary</h2>
+            <div id="modal-customer-details" class="mb-6 border-b pb-4"></div>
+            <h3 class="text-xl font-semibold text-gray-800 mb-2">Selected Products:</h3>
+            <div id="modal-product-summary" class="mb-6 max-h-60 overflow-y-auto"></div>
+            <div class="text-right font-bold text-xl text-gray-900 mb-6 border-t pt-4">
+                Total: <span id="modal-total-price"></span>
+            </div>
+            <div class="flex justify-end gap-4">
+                <button id="close-modal" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg transition-colors">Close</button>
+                <button id="confirm-order" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors">Confirm & Send Email</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        const inventoryData = `
+140TP6445Y DUMB CLUCKS $1 /210 /48CS117210$14.20
+140TP6446Y BOSS HOG $1 /210 /48CS830210$14.20
+140TP6447Y FUR BABIES $1 /210 /48CS1153210$14.20
+140TP6448Y SILLY GOOSE $1 /210 /48CS1382210$14.20
+140TP6499H LUCKY CHARMED $1 /210 /48CS1133210$14.20
+140TP6500H HIGH ROLLER $1 /210 /48CS465210$14.20
+140TP6501H COOKIES $1 /210 /48CS598210$14.20
+140TP6502H FUNKY FARM $1 /210 /48CS1491210$14.20
+140TPLS210 LICKETY SPLIT $1 /210 /48CS795210$14.20
+145UM6044W JELLY BEANZ .50 /1740 /4CS411740$90.48
+150TP15527 AROUND THE STRIP $1 /984 /8CS49984$51.17
+150TP15945AR GRAND SLAM $1 /1770 /4CS621770$92.04
+150TP17639R BLAZIN BALLS $1 /480 /12CS263480$24.96
+150TP17737AR SUPER SLAM $1 /1770 /4CS1431770$92.04
+150TP21160 BLOCKBUSTER $1 /624 /12CS504624$32.45
+150TP21161 QUICK HITZ $1 /624 /12CS198624$32.45
+150TP23673RR BONUS SLAM $1 /1740 /4CS41740$90.48
+150TP25246R BIG DADDY $1 /1260 /6CS2391260$65.52
+150TP27148R HOT MAMA $1 /1260 /6CS3191260$65.52
+150TP32673R DOUBLE DABBIN $1 /1260/8CS1891260$65.52
+150TP35738R BLAZING BALLS $1 /930 /8CS1151930$48.36
+150TP36140R FIRE BALLS $1 /968 /8CS277968$50.34
+150TP6144V LUCKY GEMS $1 /975 /8CS6975$50.70
+150TP6145V ROCK & ROLL $1 /975 /8CS76975$50.70
+150TP6146V ROCK COLLECTION $1 /975 /8CS2975$50.70
+150TP6147V DOUBLE RUBIES $1 /975 /8CS58975$50.70
+150TP6227K AND THEY'RE OFF $1 /740 /12CS345740$38.48
+150TP6379Q BIG BABY $1 /1275 /8CS271275$66.30
+150TP6380Q BEARLY BINGO $1 /1275 /8CS291275$66.30
+150TP6381Q TRIPLE GEMS $1 /1275 /8CS1621275$66.30
+150TP6382Q WILD & FREE $1 /1275 /8CS361275$66.30
+150TP6548N RED HOT SLOTS $1 /915 /8CS87915$47.58
+150TP6549N TROLLIN' $1 /915 /8CS86915$47.58
+150TP6550N OH BABY $1 /915 /8CS98915$47.58
+150TP6551N ICEY!!! $1 /915 /8CS86915$47.58
+150TP6553H CHICK FLICK $1 /975 /8CS107975$50.70
+150TP6554H LIL' PUPS $1 /975 /8CS121975$50.70
+150TP6555H PADDY'S PRIDE $1 /975 /8CS166975$50.70
+150TP6556H WILD CHERRIES $1 /975 /8CS46975$50.70
+150TP6558Y CLASSIC SLOTS $1 /1275/ 8CS101275$66.30
+150TP6559Y DOG DAZE $1 /1275 /8CS651275$66.30
+150TP6560Y IRISH DIAMONDS $1 /1275 /8CS501275$66.30
+150TP6561Y TRIPLE THREAT $1 /1275/ 8CS521275$66.30
+150TP6569R REEL SEVENS $1 /975 /8CS33975$50.70
+150TP6570RWILD FIRE SLOTS $1 /975 /8CS31975$50.70
+150TP6570ZR LUCKY SHAMROCKS $1 /2700 /2CS702700$140.40
+150TP6571R SILVER SLOTS $1 /975 /8CS113975$50.70
+150TP6572R TRIPLE DABBIN $1 /975 /8CS100975$50.70
+150TP6594JR LUCKY KAT $1 /1960 /4CS1701960$101.92
+150TP6645 BUCKAROO BINGO $1 /416 /20CS400416$21.63
+150TP6932K TRIPLE 500'S $1 /2280 /4CS1972280$118.56
+150TP6948W FISH 'N' CHIPS $1 /975 /8CS69975$42.16
+150TP6949W BEARLY ANGELS $1 /975 /8CS47975$42.16
+150TP6950W DALMATIAN DOLLARS $1 /975 /8CS18975$42.16
+150TP6951W PURRR-FECT $1 /975 /8CS99975$42.16
+150TP6991Z DOUBLIN DOWN $1/ 675 /12CS290675$35.10
+150TP7351K BANK BUSTERS $1 /1335/6CS2521320$68.64
+150TP7353K LUCKY GOLD $1 /1335/6CS51320$68.64
+150TP7379S LIL FILLY $1 /320 /20CS1267320$16.64
+150TP7499S SURE BET $1 /1320/6CS1311320$68.64
+150TP7602H BANANA SPLIT $1 /1320/6CS1461320$68.64
+150TP7603H TRIPLE SCORE $1 /1320/6CS771320$68.64
+150TP7649H BANANA SPLIT $1 /2460/4CS1922460$127.92
+150TP7677L CHAMPION JOCKEY $1 /1965 /4CS1801965$102.18
+150TP7685K WILD & LUCKY $2 /3000 /2CS703000$156.00
+150TP7813J HAWG SLOTS $1 /1965 /4CS1861965$102.18
+150TPAC930 ALLEY CASH $1 /930 /8CS70930$48.36
+150TPBB1320 BINGO BULLDOGS $1 /1320 /6CS351320$68.64
+150TPBP690 BEACH PARTY BBQ $1 /690 /12CS1680$35.36
+150TPDD1320 DAZZLING DOLLARS $1 /1320 /6CS11320$68.64
+150TPDG960 DOUBLE GOLD $1 /960 /8CS55960$49.92
+150TPEYE500R EYEBALLS $1 /1320 /6CS281280$66.56
+150TPGD1320 GREEN DIAMONDS $1 /1320 /6CS241320$68.64
+150TPIS2700 ISLAND SPLASH $1 /2700 /2CS572700$140.40
+150TPPOL930 PICK OF THE LITTER $1 /930 /8C70930$48.36
+150TPRR1320 RED RUBY 7 $1 /1320 /6CS111320$68.64
+150TPSFB500 SUPER FAST BALL $1 1950/4CS71950$101.40
+150TPTW2700 TRIPLE WISH $1 /2700 /2CS162700$140.40
+150UM1W1000FP FORE PLAY $1 / 1000 / 8CS3001000$52.00
+150UM1W1125PH PICK A HORSE $1 /1125 /6CS2031125$58.50
+150UM1W1320HHR HORIZONTAL HORSES $1/1320 /6CS561320$68.64
+150UM1W875RI RIDERS $1 /875 /8CS117875$45.50
+150UM1W900FH FIREHOUSE $1 /900 /8CS276900$46.80
+150UM6162Y WILD BARS $1 /1925 /4CS261925$100.10
+150UM6351Z BONUS BEES $1 /925 /8CS242925$48.10
+150UM6498W WIRE 2 WIRE $1 /1260 /6CS4591260$65.52
+150UM6505V 5 ALARM FIRE $1 /1260 /5CS4131260$65.52
+150UM6847Y TRIPLE DAB $1 /975 /8CS144975$50.70
+150UM6857ZN SPARE CHANGE $1 /1340 /6CS3861340$69.68
+150UM6865W SIX SHOT $1 /560 /10CS366560$29.12
+150UM7004A HOUNDS & HORSES $1 /2280 /4CS162280$118.56
+150UM7177C QUICK HITS $1 /1750 /4CS2021750$91.00
+150UM7683H SPARE CHANGE $1 /2490/4CS2942490$129.48
+150UM7898H 37 PONIES $1 /925 /8CS710925$48.10
+150UM7906H MEGA 500'S $1 /2300 /4CS2012300$119.60
+150UM7927H FLASHIN 4 $1 /950/8CS38950$49.40
+150UMCLF810 CLEAN FINISH $1/810/12C225810$42.12
+150UMDUF780 DUAL FINISH $1/780/10C125780$40.56
+150UMFVP600 5 PONIES $1/600/12C249600$31.20
+150UMFVP960 5 PONIES $1/960/8C357960$49.92
+150UMGAP780 GET A PONY $1/780/10C182780$40.56
+150UMLKYC1965R LUCKY CLOVERS $1 /1965 /4CS2181965$102.18
+155AI7023H ROYAL PALMZ $1 /6150/1CS36150$319.80
+155TP27877R POP 5 $1 /2375 /4CS582375$123.50
+155TP34015R DOUBLE CHERRIES $1 /2700 /2CS1502700$140.40
+155TP36279RR FIRE & ICE $1 /1980 /4CS2511980$102.96
+155TP36739RR SMOKIN' TOKENS $1 /1980 /4CS991980$102.96
+155TP38373R ZINGO $1 /1800 /4CS6731800$93.60
+155TP46288R WILD & CRAZY $1 /2040 /4CS2362040$106.08
+155TP47489R NAUGHTY OR NICE $2 /1995 /2CS1163990$207.48
+155TP47624R MOOLAH $1 /2400 /4CS592400$124.80
+155TP5155CR FLAWLESS $1 /8080 /1CS48080$420.16
+155TP5213KR RAGS TO RICHES $2 /1995 /2CS1133990$207.48
+155TP5300PR CROWN JEWEL $1 /8080 /1CS48080$420.16
+155TP54268R MEGA PALMS $1 /10050 /1CS210050$522.60
+155TP5430UR GOLD FEVER $1 /2040 /4CS2242040$106.08
+155TP5594RR GOLD STANDARD $1 /6075 /1CS36075$315.90
+155TP5761ZR BIG MONEY $2 /2240 /1CS214480$232.96
+155TP58361RR BIRDS & BEES $1 /2040 /4CS1972040$106.08
+155TP5979U EXACTA $1 /1980 /4CS611980$102.96
+155TP6006UR BONUS BLAZIN BALLS 1/1960 /4CS3471960$101.92
+155TP6010XR SWEET & SASSY $2 /1995 /2CS303990$207.48
+155TP6580RR SQUEEZE PLAY $1 /1980 /4CS1421980$102.96
+155TP6629Z BOOMERANG $1 /1800 /4CS4761800$93.60
+155TP6703J ROLL THE DICE $1 /3000 /2CS663000$156.00
+155TP6919QR THUNDER & LIGHTNING $1/1995/2C803990$207.48
+155TP7994BR SI SENOR $1 /2385 /4CS742385$124.02
+155TPGB1980 GUM BALLS $1 /1980 /4CS2371980$102.96
+155UM6523Y DIAMOND DELUXE $1 /1980 /4CS731980$102.96
+155UM6933VA COW-A-BINGO $1 /2040/4CS1192040$106.08
+155UM6998VAJELLY BEANZ $1 /2040 /4CS972040$106.08
+155UMCL2040CHICKLETS $1 /2040 /4CS1542040$106.08
+170TP41533RSOUTH SEAS 3V /180 /8CS171180$41.58
+170TP42942RLUCKY DRAGON 3V /180 /8CS98180$41.58
+170TP49922RLITTLE CHEESE 3V /180 /8CS132180$41.58
+170TP5254SRMINI CLASSIC 3V /180 /8CS187180$41.58
+170TP5844CRLUCKY ELEPHANT 3V /180 /8CS185180$41.58
+170TP6274VODD BALLS 3V /180 /8CS66180$41.58
+170TPBBR3BANANA BARS 3V /180 /8CS125180$41.58
+170TPDR180DOUBLE RAINBOW 3V /180 /8CS66180$41.58
+170TPFUN3RFUN PLAY 3V /180 /8CS14180$41.58
+170TPKK180RRKOOL KAT 3V /180 /8CS66180$41.58
+170TPRWB3RRED WHITE & BLUE 3V /180 /8CS94180$41.58
+170TPSD3180RSTRIP DADDY 3V /180 /8CS30180$41.58
+170TPTS3RTHREE SEVENS 3V /180 /8CS122180$41.58
+170TPWGC3RWILD GOOSE CHASE 3V /180 /8CS222180$41.58
+180TP41846RBIG CHEESE 5V /180 /8CS764180$65.21
+180TP5212VRDOWN THE STRETCH 5V /210 /8CS296210$76.08
+180TP5235ZRHEAVENLY HOG 5V /180 /8CS527180$65.21
+180TP5278RRCUSTOM SCARLET BRIGADE 5V /18052180$65.21
+180TP5279FRCUSTOM PACE SOLANO 5V /180 /8C112180$65.21
+180TP53053RBIG KAHUNA 5V /180 /8CS661180$65.21
+180TP5419JRHOT DOG 5V /180 /8CS612180$65.21
+180TP5485NRCRAZY COYOTE (C) 5V /180 /8CS743180$65.21
+180TP5668CRAMERICAN PRIDE 5V /180 /8CS432180$65.21
+180TP5799HRHALLELUJAH 5V /180 /8CS265180$65.21
+180TP5972BRFOOTHILL SQ 5V /180 /8CS64180$65.21
+180TP5984BRHOT FLASH 5V /180 /8CS637180$65.21
+180TP6401QRCLASSIC STRIP (C) 5V /180 /8CS475180$65.21
+180TP6466NRBEACH PARTY (C) 5V /180 /8CS407180$65.21
+180TP6691QRLUCKY UNICORN (C) 5V /180 /8CS529180$65.21
+180TP7420AVIKINGS 5V /180 /8CS66180$65.21
+180TP7748BLUCKY DRAGON (C) 5V /180 /8CS677180$65.21
+180TPAH180ANGRY HORSES 5V /180 /8CS229180$65.21
+180TPBINGO180BINGO STRIP 5V /180 /8CS134180$65.21
+180TPBOOM180RKA BOOM 5V /180 /8CS338180$65.21
+180TPDR216DRAGON RACE CUSTOM 5V /216/8CS58210$76.08
+180TPES180REVEN STEVEN 5V /180 /8CS122180$65.21
+180TPLAF180RLOST & FOUND 5V /180 /8CS724180$65.21
+180TPLAW180RIN LAWS 5V /180 /8CS284180$65.21
+180TPLL180RLOUIE THE LOBSTER 5V /180 /8CS266180$65.21
+180TPLP180RLUCKY PENGUIN 5V /180 /8CS871180$65.21
+180TPODD180RODDBALLS 5V /180 /8CS513180$65.21
+180TPPA180RPARTY ANIMALS 5V /180 /8CS998180$65.21
+180TPS5180RSUPER 5 STRIP 5V /180 /8CS325180$65.21
+180TPSCR180RSCRAPPY DOG 5V /180 /8CS507180$65.21
+180TPSD180RSTRIP DADDY 5V /180 /8CS628180$65.21
+180TPSHO180RSHOW ME THE MONEY 5V /180 /8CS484180$65.21
+180TPSS180RSUPER STRIP 5V /180 /8CS294180$65.21
+180TPZOM180RZOMBIES ARE COMING 5V /180 /8C210180$65.21
+180UM6108YHAWG HAVEN 5V /180 /8CS384180$65.21
+180UM6623ZTHE X GAME 5V /180 /8CS371180$65.21
+180UM6740VCARD SHARKS 5V /180 /8CS312180$65.21
+180UM7498ABLACKOUT 5V/180/8CS190180$65.21
+180UM7499ALUCKY CHARM 10V /180 /10CS1183180$65.21
+180UMJ180APTANIMAL PARTY 5V /180 /8CS306180$65.21
+180UMJ180CLVCLOVERS 5V /180 /8CS662180$65.21
+180UMJ180CRCCRUSTY CRABS 5V /180 /8CS283180$65.21
+180UMJ180PGPPENGUIN PALS 5V /180 /8CS259180$65.21
+        `;
+
+        let products = [];
+        let currentCategory = 'All';
+
+        function parseData() {
+            const lines = inventoryData.trim().split('\n');
+            const parsedProducts = lines.map(line => {
+                try {
+                    const priceMatch = line.match(/\$(\d+\.\d{2})$/);
+                    if (!priceMatch) return null;
+
+                    const price = parseFloat(priceMatch[1]);
+                    let content = line.substring(0, priceMatch.index).trim();
+                    
+                    // This cleanup is better done after splitting
+                    // content = content.replace(/(CS)\d+/g, '$1');
+
+                    let itemCode = '';
+                    let name = '';
+
+                    const firstSpaceIndex = content.indexOf(' ');
+                    
+                    // Handle lines with a space after the item code
+                    if (firstSpaceIndex > 0 && firstSpaceIndex < 15) {
+                        itemCode = content.substring(0, firstSpaceIndex).trim();
+                        name = content.substring(firstSpaceIndex + 1).trim();
+                    } 
+                    // Handle lines without a space
+                    else {
+                        const match = content.match(/^([0-9A-Z]+?)([A-Z]{2,}.*)$/);
+                         if (match && match.length === 3) {
+                            itemCode = match[1];
+                            name = match[2];
+                        } else {
+                            console.error("Could not parse line:", line);
+                            return null;
+                        }
+                    }
+
+                    if (!itemCode || !name) return null;
+
+                    // Clean up trailing junk from the name
+                    name = name.replace(/(CS)\d+/g, '$1').trim();
+
+                    return { itemCode, name, price };
+
+                } catch (e) {
+                    console.error("Error parsing line:", line, e);
+                    return null;
+                }
+            }).filter(p => p); // filter out any null values
+            return parsedProducts;
+        }
+
+
+        function renderTable(productsToRender) {
+            const tableBody = document.getElementById('product-table-body');
+            // Keep track of entered quantities to persist them during re-renders (filtering)
+            const quantities = {};
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                if (input.value && parseInt(input.value) > 0) {
+                   const itemCode = input.closest('.product-row').dataset.itemCode;
+                   quantities[itemCode] = input.value;
+                }
+            });
+
+            tableBody.innerHTML = '';
+            productsToRender.forEach(product => {
+                const row = document.createElement('tr');
+                row.className = "product-row";
+                row.dataset.itemCode = product.itemCode;
+                row.dataset.name = product.name;
+                row.dataset.price = product.price;
+
+                const savedQuantity = quantities[product.itemCode] || '';
+
+                row.innerHTML = `
+                    <td class="hidden px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${product.itemCode}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${product.name}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">$${product.price.toFixed(2)}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <input type="number" min="0" value="${savedQuantity}" class="w-24 p-2 bg-gray-50 border border-gray-300 rounded-md text-center focus:ring-1 focus:ring-blue-500 focus:border-blue-500 quantity-input" data-price="${product.price}">
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-800 font-semibold text-right line-total">$${(savedQuantity * product.price).toFixed(2)}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            addEventListenersToInputs();
+            calculateTotals();
+        }
+
+        function calculateTotals() {
+            let grandTotal = 0;
+            const allProductRows = document.querySelectorAll('#product-table-body .product-row');
+            allProductRows.forEach(row => {
+                 const input = row.querySelector('.quantity-input');
+                 const quantity = parseInt(input.value) || 0;
+                 const price = parseFloat(row.dataset.price);
+                 const lineTotal = quantity * price;
+
+                 if (quantity > 0) {
+                    grandTotal += lineTotal;
+                 }
+                 
+                 row.querySelector('.line-total').textContent = `$${lineTotal.toFixed(2)}`;
+            });
+
+            // Recalculate the grand total from the source of truth (all products), not just visible ones
+            let finalGrandTotal = 0;
+            const allInputs = document.querySelectorAll('.quantity-input');
+             products.forEach(product => {
+                const row = document.querySelector(`.product-row[data-item-code="${product.itemCode}"]`);
+                if (row) {
+                    const quantity = parseInt(row.querySelector('.quantity-input').value) || 0;
+                     if (quantity > 0) {
+                        finalGrandTotal += quantity * product.price;
+                    }
+                }
+            });
+
+
+            document.getElementById('total-price').textContent = `$${finalGrandTotal.toFixed(2)}`;
+        }
+
+        function addEventListenersToInputs() {
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            quantityInputs.forEach(input => {
+                input.addEventListener('input', calculateTotals);
+            });
+        }
+        
+        function filterAndRender() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            let filteredProducts = products;
+
+            // 1. Filter by Category
+            if (currentCategory !== 'All') {
+                filteredProducts = filteredProducts.filter(p => p.itemCode.startsWith(currentCategory));
+            }
+
+            // 2. Filter by Search Term
+            if (searchTerm) {
+                filteredProducts = filteredProducts.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) || 
+                    p.itemCode.toLowerCase().includes(searchTerm)
+                );
+            }
+            
+            renderTable(filteredProducts);
+        }
+        
+        function showOrderSummary() {
+            const customerName = document.getElementById('customerName').value;
+            const email = document.getElementById('email').value;
+
+            if (!customerName || !email) {
+                alert('Please fill in at least Customer Name and Email Address.');
+                return;
+            }
+
+            const modal = document.getElementById('order-summary-modal');
+            const customerDetails = document.getElementById('modal-customer-details');
+            const productSummary = document.getElementById('modal-product-summary');
+            const modalTotalPrice = document.getElementById('modal-total-price');
+            
+            customerDetails.innerHTML = `
+                <p><strong>Name:</strong> ${document.getElementById('customerName').value}</p>
+                <p><strong>Company:</strong> ${document.getElementById('companyName').value || 'N/A'}</p>
+                <p><strong>Email:</strong> ${document.getElementById('email').value}</p>
+                <p><strong>Phone:</strong> ${document.getElementById('phone').value || 'N/A'}</p>
+                <p><strong>Shipping Address:</strong> ${document.getElementById('shippingAddress').value || 'N/A'}</p>
+                 <p><strong>Special Instructions:</strong> ${document.getElementById('specialInstructions').value || 'N/A'}</p>
+            `;
+
+            let summaryHtml = '<div class="divide-y divide-gray-200">';
+            let hasProducts = false;
+            let grandTotal = 0;
+
+            products.forEach(product => {
+                // Find the quantity from the actual input on the page, not just a querySelector of all rows
+                 const row = document.querySelector(`.product-row[data-item-code="${product.itemCode}"]`);
+                 let quantity = 0;
+                 if(row) {
+                     const input = row.querySelector('.quantity-input');
+                     if(input) {
+                        quantity = parseInt(input.value) || 0;
+                     }
+                 }
+
+                if (quantity > 0) {
+                    hasProducts = true;
+                    const price = product.price;
+                    const lineTotal = quantity * price;
+                    grandTotal += lineTotal;
+                    summaryHtml += `
+                        <div class="py-2 flex justify-between">
+                            <div>
+                                <p class="font-semibold">${product.name} (${product.itemCode})</p>
+                                <p class="text-sm text-gray-600">${quantity} x $${price.toFixed(2)}</p>
+                            </div>
+                            <p class="font-semibold">$${lineTotal.toFixed(2)}</p>
+                        </div>
+                    `;
+                }
+            });
+            summaryHtml += '</div>';
+
+            if (!hasProducts) {
+                alert('Please select a quantity for at least one product.');
+                return;
+            }
+
+            productSummary.innerHTML = summaryHtml;
+            modalTotalPrice.textContent = `$${grandTotal.toFixed(2)}`;
+            document.getElementById('total-price').textContent = `$${grandTotal.toFixed(2)}`;
+            modal.classList.remove('hidden');
+        }
+        
+        function closeModal() {
+            document.getElementById('order-summary-modal').classList.add('hidden');
+        }
+
+        function handleConfirmOrder() {
+            const customerName = document.getElementById('customerName').value;
+            const companyName = document.getElementById('companyName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const shippingAddress = document.getElementById('shippingAddress').value;
+            const specialInstructions = document.getElementById('specialInstructions').value;
+
+            const subject = `New Customer Order from ${customerName}`;
+
+            let body = "New Order Details:\n\n";
+            body += "--- Customer Information ---\n";
+            body += `Name: ${customerName}\n`;
+            body += `Company: ${companyName || 'N/A'}\n`;
+            body += `Email: ${email}\n`;
+            body += `Phone: ${phone || 'N/A'}\n`;
+            body += `Shipping Address: ${shippingAddress || 'N/A'}\n`;
+            body += `Special Instructions: ${specialInstructions || 'N/A'}\n\n`;
+            body += "--- Ordered Products ---\n\n";
+
+            let grandTotal = 0;
+             products.forEach(product => {
+                const row = document.querySelector(`.product-row[data-item-code="${product.itemCode}"]`);
+                 let quantity = 0;
+                 if(row) {
+                    const input = row.querySelector('.quantity-input');
+                    if(input) {
+                        quantity = parseInt(input.value) || 0;
+                    }
+                 }
+                
+                if (quantity > 0) {
+                    const price = product.price;
+                    const lineTotal = quantity * price;
+                    grandTotal += lineTotal;
+                    body += `${product.name} (${product.itemCode})\n`;
+                    body += `   - Quantity: ${quantity}\n`;
+                    body += `   - Price per deal: $${price.toFixed(2)}\n`;
+                    body += `   - Subtotal: $${lineTotal.toFixed(2)}\n\n`;
+                }
+            });
+
+            body += "---------------------------\n";
+            body += `GRAND TOTAL: $${grandTotal.toFixed(2)}\n`;
+
+            const mailtoLink = `mailto:jeffrey.rydman@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+            window.location.href = mailtoLink;
+            
+            closeModal();
+
+            const successMessage = document.getElementById('success-message');
+            successMessage.classList.remove('hidden');
+            setTimeout(() => {
+                successMessage.classList.add('hidden');
+            }, 5000);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            products = parseData();
+            filterAndRender();
+            
+            document.getElementById('searchInput').addEventListener('input', filterAndRender);
+            
+            document.getElementById('category-filters').addEventListener('click', (e) => {
+                if (e.target.classList.contains('category-btn')) {
+                    document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentCategory = e.target.dataset.category;
+                    filterAndRender();
+                }
+            });
+
+            document.getElementById('submit-order').addEventListener('click', showOrderSummary);
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            document.getElementById('confirm-order').addEventListener('click', handleConfirmOrder);
+        });
+
+    </script>
+</body>
+</html>
+
